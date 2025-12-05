@@ -66,7 +66,7 @@ github_url = 'https://github.com/mymarilyn/clickhouse-driver'
 
 setup(
     name='clickhouse-driver',
-    version=read_version(),
+    version=read_version() + "+newjson2",
 
     description='Python driver with native interface for ClickHouse',
     long_description=long_description,
