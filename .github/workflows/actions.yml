@@ -27,6 +27,15 @@ jobs:
         env:
           CIBW_BUILD: '*p3*'
           CIBW_BEFORE_BUILD: pip install cython
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+      - name: Publish wheels to private PyPI
+        if: ${{ github.ref_type == 'tag' }}
+        env:
+          UV_PUBLISH_TOKEN: ${{ secrets.PYPI_TOKEN }}
+          UV_PUBLISH_URL: ${{ secrets.PYPI_URL }}
+        run: |
+          uv publish wheelhouse/*
       - uses: ncipollo/release-action@v1
         name: Upload wheels
         if: ${{ github.ref_type == 'tag' }}
@@ -64,6 +73,15 @@ jobs:
           CIBW_BUILD: '*p3*'
           CIBW_BEFORE_BUILD: pip install cython
           CIBW_ARCHS_MACOS: x86_64 arm64
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+      - name: Publish wheels to private PyPI
+        if: ${{ github.ref_type == 'tag' }}
+        env:
+          UV_PUBLISH_TOKEN: ${{ secrets.PYPI_TOKEN }}
+          UV_PUBLISH_URL: ${{ secrets.PYPI_URL }}
+        run: |
+          uv publish wheelhouse/*
       - uses: ncipollo/release-action@v1
         name: Upload wheels
         if: ${{ github.ref_type == 'tag' }}
@@ -102,6 +120,15 @@ jobs:
         env:
           CIBW_BUILD: '*p3*'
           CIBW_BEFORE_BUILD: pip install cython
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+      - name: Publish wheels to private PyPI
+        if: ${{ github.ref_type == 'tag' }}
+        env:
+          UV_PUBLISH_TOKEN: ${{ secrets.PYPI_TOKEN }}
+          UV_PUBLISH_URL: ${{ secrets.PYPI_URL }}
+        run: |
+          uv publish wheelhouse/*
       - uses: ncipollo/release-action@v1
         name: Upload wheels
         if: ${{ github.ref_type == 'tag' }}
@@ -151,6 +178,15 @@ jobs:
           CIBW_BUILD: '*p3*'
           CIBW_BEFORE_BUILD: pip install cython
           CIBW_ARCHS: ${{ matrix.arch }}
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+      - name: Publish wheels to private PyPI
+        if: ${{ github.ref_type == 'tag' }}
+        env:
+          UV_PUBLISH_TOKEN: ${{ secrets.PYPI_TOKEN }}
+          UV_PUBLISH_URL: ${{ secrets.PYPI_URL }}
+        run: |
+          uv publish wheelhouse/*
       - uses: ncipollo/release-action@v1
         name: Upload wheels
         if: ${{ github.ref_type == 'tag' }}
