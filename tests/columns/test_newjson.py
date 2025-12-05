@@ -1,5 +1,3 @@
-import json
-
 from tests.testcase import BaseTestCase
 
 
@@ -55,7 +53,10 @@ class NewJSONTestCase(BaseTestCase):
                             "age": 30,
                             "gender": "male",
                         },
-                        "preferences": {"theme": "dark", "notifications": True},
+                        "preferences": {
+                            "theme": "dark",
+                            "notifications": True,
+                        },
                         "roles": ["admin", "user"],
                     },
                 )
@@ -70,7 +71,10 @@ class NewJSONTestCase(BaseTestCase):
                         "roles": ["admin", "user"],
                         "user_id": 101,
                         "username": "john_doe",
-                        "preferences": {"notifications": True, "theme": "dark"},
+                        "preferences": {
+                            "notifications": True,
+                            "theme": "dark",
+                        },
                         "profile": {
                             "age": 30,
                             "first_name": "John",
@@ -86,7 +90,13 @@ class NewJSONTestCase(BaseTestCase):
     def test_json_1_fromcli(self):
         with self.create_table("a JSON"):
             self.emit_cli(
-                'INSERT INTO test (a) VALUES (\'{"user_id": 101, "username": "john_doe", "email": "john.doe@example.com", "profile": {"first_name": "John", "last_name": "Doe", "age": 30, "gender": "male"}, "preferences": {"theme": "dark", "notifications": true}, "roles": ["admin", "user"]}\')'
+                'INSERT INTO test (a) VALUES '
+                '(\'{"user_id": 101, "username": "john_doe", '
+                '"email": "john.doe@example.com", '
+                '"profile": {"first_name": "John", "last_name": '
+                '"Doe", "age": 30, "gender": "male"}, '
+                '"preferences": {"theme": "dark", "notifications": '
+                'true}, "roles": ["admin", "user"]}\')'
             )
 
             query = "SELECT * FROM test"
@@ -97,7 +107,10 @@ class NewJSONTestCase(BaseTestCase):
                         "roles": ["admin", "user"],
                         "user_id": 101,
                         "username": "john_doe",
-                        "preferences": {"notifications": True, "theme": "dark"},
+                        "preferences": {
+                            "notifications": True,
+                            "theme": "dark",
+                        },
                         "profile": {
                             "age": 30,
                             "first_name": "John",
@@ -229,27 +242,46 @@ class NewJSONTestCase(BaseTestCase):
     def test_json_2_fromcli(self):
         with self.create_table("a JSON"):
             self.emit_cli(
-                'INSERT INTO test (a) VALUES (\'{}\'),\
-                     (\'{"foo": "bar", "bar": "baz"}\'),\
-                     (\'{"baz": "qux", "foo": 4919}\'),\
-                     (\'{"qux": "quux"}\'),\
-                     (\'{"foo": "AAAA"}\'),\
-                     (\'{"qux": 14099}\'),\
-                     (\'{"foo": [1, 0.2, "bar", "baz", false]}\'),\
-                     (\'{"foo": 0.1337}\'),\
-                     (\'{"foo": false}\'),\
-                     (\'{"bar": 1337}\'),\
-                     (\'{"bar": 0.999}\'),\
-                     (\'{"quux": 1000}\'),\
-                     (\'{"quux": 2000}\'),\
-                     (\'{"quux": 20.25}\'),\
-                     (\'{"alice": 0.432}\'),\
-                     (\'{"bob": 0.991}\'),\
-                     (\'{"boolean": true}\'),\
-                     (\'{"null": null}\'),\
-                     (\'{"string": "A quick brown fox jumps over the lazy dog."}\'),\
-                     (\'{"nested": {"number": 4141, "string": "Hello, World!", "double-nested": {"foo": "bar", "no.escaping": "1337", "triple-nested": {"foo": "bar"}, "numbers": [1, 2, 3], "floats": [0.1, 0.2, 4], "tuple-list": [1, 3, "asdf", [1, 4, 6], {"foo": "bar", "list": [1, 2, {"hello": "world"}]}]}}}\'),\
-                     (\'{"list": [123, "2", true, {"foo": "bar", "list": [0.123, {"baz": "bar"}]}]}\')'
+                'INSERT INTO test (a) VALUES '
+                '(\'{}\'),'
+                '(\'{"foo": "bar", "bar": "baz"}\'),'
+                '(\'{"baz": "qux", "foo": 4919}\'),'
+                '(\'{"qux": "quux"}\'),'
+                '(\'{"foo": "AAAA"}\'),'
+                '(\'{"qux": 14099}\'),'
+                '(\'{"foo": [1, 0.2, "bar", "baz", false]}\'),'
+                '(\'{"foo": 0.1337}\'),'
+                '(\'{"foo": false}\'),'
+                '(\'{"bar": 1337}\'),'
+                '(\'{"bar": 0.999}\'),'
+                '(\'{"quux": 1000}\'),'
+                '(\'{"quux": 2000}\'),'
+                '(\'{"quux": 20.25}\'),'
+                '(\'{"alice": 0.432}\'),'
+                '(\'{"bob": 0.991}\'),'
+                '(\'{"boolean": true}\'),'
+                '(\'{"null": null}\'),'
+                '(\'{"string": '
+                '"A quick brown fox jumps over the lazy dog."}\'),'
+                '(\'{"nested": {"number": 4141, "string": "Hello, World!", '
+                    '"double-nested": {'  # noqa: E131
+                        '"foo": "bar", '  # noqa: E131
+                        '"no.escaping": "1337", '
+                        '"triple-nested": {"foo": "bar"}, '
+                        '"numbers": [1, 2, 3], '
+                        '"floats": [0.1, 0.2, 4], '
+                        '"tuple-list": [1, 3, "asdf", [1, 4, 6], {'
+                            '"foo": "bar", '  # noqa: E131
+                            '"list": [1, 2, {'
+                                '"hello": "world"'  # noqa: E131
+                            '}]'
+                        '}]'
+                    '}'
+                '}}\'),'
+                '(\'{"list": [123, "2", true, {'
+                    '"foo": "bar", '
+                    '"list": [0.123, {"baz": "bar"}]'
+                '}]}\')'
             )
 
             query = "SELECT * FROM test"
@@ -329,7 +361,10 @@ class NewJSONTestCase(BaseTestCase):
     def test_json_3_fromcli(self):
         with self.create_table("a JSON"):
             self.emit_cli(
-                'INSERT INTO test (a) VALUES (\'{"list": [1, "asdf", 0.025, null, ["foo", "bar"], ["foo", "bar"]]}\')'
+                'INSERT INTO test (a) VALUES (\''
+                '{"list": ['
+                '1, "asdf", 0.025, null, ["foo", "bar"], ["foo", "bar"]'
+                ']}\')'
             )
 
             query = "SELECT * FROM test"
@@ -408,11 +443,11 @@ class NewJSONTestCase(BaseTestCase):
                                                     1,
                                                     2,
                                                     {
-                                                        "quadruple-nested-list": [
+                                                        "quadruple-nested-list": [  # noqa: E501
                                                             3,
                                                             4,
                                                             {
-                                                                "quintuple-nested-list": [
+                                                                "quintuple-nested-list": [  # noqa: E501
                                                                     5,
                                                                     6,
                                                                 ]
@@ -451,11 +486,11 @@ class NewJSONTestCase(BaseTestCase):
                                                     1,
                                                     2,
                                                     {
-                                                        "quadruple-nested-list": [
+                                                        "quadruple-nested-list": [  # noqa: E501
                                                             3,
                                                             4,
                                                             {
-                                                                "quintuple-nested-list": [
+                                                                "quintuple-nested-list": [  # noqa: E501
                                                                     5,
                                                                     6,
                                                                 ]
@@ -478,7 +513,13 @@ class NewJSONTestCase(BaseTestCase):
     def test_json_5_fromcli(self):
         with self.create_table("a JSON"):
             self.emit_cli(
-                'INSERT INTO test (a) VALUES (\'{"list": ["123", "456", {"nested-list": ["789", "10", {"double-nested-list": [14099, "AAAA", {"triple-nested-list": [1, 2, {"quadruple-nested-list": [3, 4, {"quintuple-nested-list": [5, 6]}]}]}]}]}]}\')'
+                'INSERT INTO test (a) VALUES '
+                '(\'{"list": ["123", "456", '
+                '{"nested-list": ["789", "10", '
+                '{"double-nested-list": [14099, "AAAA", '
+                '{"triple-nested-list": [1, 2, '
+                '{"quadruple-nested-list": [3, 4, '
+                '{"quintuple-nested-list": [5, 6]}]}]}]}]}\')'
             )
 
             query = "SELECT * FROM test"
@@ -501,11 +542,11 @@ class NewJSONTestCase(BaseTestCase):
                                                     1,
                                                     2,
                                                     {
-                                                        "quadruple-nested-list": [
+                                                        "quadruple-nested-list": [  # noqa: E501
                                                             3,
                                                             4,
                                                             {
-                                                                "quintuple-nested-list": [
+                                                                "quintuple-nested-list": [  # noqa: E501
                                                                     5,
                                                                     6,
                                                                 ]
@@ -580,9 +621,14 @@ class NewJSONTestCase(BaseTestCase):
     def test_json_6_fromcli(self):
         with self.create_table("a JSON"):
             self.emit_cli(
-                'INSERT INTO test (a) VALUES (\'{"list": ["123", "456", {"nested-list": ["789", "10", {"double-nested": "test"}]}]}\'),\
-                     (\'{"list": ["1337", "444", {"nested-list": ["123", "654", {"asdf": "fdas"}]}]}\'),\
-                     (\'{"list": ["123", "456", {"nested-list": "1234"}]}\')'
+                'INSERT INTO test (a) VALUES '
+                '(\'{"list": ["123", "456", {"nested-list": '
+                    '["789", "10", {"double-nested": "test"}]'   # noqa: E131
+                '}]}\'), '
+                '(\'{"list": ["1337", "444", {"nested-list": '
+                    '["123", "654", {"asdf": "fdas"}]'
+                '}]}\'), '
+                '(\'{"list": ["123", "456", {"nested-list": "1234"}]}\')'
             )
 
             query = "SELECT * FROM test"
@@ -638,12 +684,14 @@ class NewJSONTestCase(BaseTestCase):
     def test_json_7_fromcli(self):
         with self.create_table("a JSON"):
             self.emit_cli(
-                'INSERT INTO test (a) VALUES (\'{"list": [1, "2", {"foo": "bar"}]}\'),\
-                     (\'{"list": "not a list"}\'),\
-                     (\'{"list": 14009}\'),\
-                     (\'{"list": 0.025}\'),\
-                     (\'{"list": true}\'),\
-                     (\'{"list": [14099, {"bar": "baz"}, {"baz": "quux"}]}\')'
+                'INSERT INTO test (a) VALUES '
+                '(\'{"list": [1, "2", {"foo": "bar"}]}\'),'
+                '(\'{"list": "not a list"}\'),'
+                '(\'{"list": 14009}\'),'
+                '(\'{"list": 0.025}\'),'
+                '(\'{"list": true}\'),'
+                '(\'{"list": [14099, {"bar": "baz"}, '
+                '{"baz": "quux"}]}\')'
             )
 
             query = "SELECT * FROM test"
@@ -685,12 +733,14 @@ class NewJSONTestCase(BaseTestCase):
     def test_json_8_fromcli(self):
         with self.create_table("a JSON"):
             self.emit_cli(
-                'INSERT INTO test (a) VALUES (\'{"list1": [1, "2", {"foo": "bar"}]}\'),\
-                     (\'{"string": "string"}\'),\
-                     (\'{"int": 14009}\'),\
-                     (\'{"float": 0.025}\'),\
-                     (\'{"bool": true}\'),\
-                     (\'{"list2": [14099, {"bar": "baz"}, {"baz": "quux"}]}\')'
+                'INSERT INTO test (a) VALUES '
+                '(\'{"list1": [1, "2", {"foo": "bar"}]}\'),'
+                '(\'{"string": "string"}\'),'
+                '(\'{"int": 14009}\'),'
+                '(\'{"float": 0.025}\'),'
+                '(\'{"bool": true}\'),'
+                '(\'{"list2": [14099, {"bar": "baz"}, '
+                '{"baz": "quux"}]}\')'
             )
 
             query = "SELECT * FROM test"
@@ -708,17 +758,23 @@ class NewJSONTestCase(BaseTestCase):
     def test_json_9(self):
         with self.create_table("a JSON"):
             data = [
-                ({"list": [1, "asdf", 0.025, ["foo", "bar", ["baz", "qux"]]]},),
-                ({"list": [10, "fdas", 0.075, ["bar", "foo", ["qux", "baz"]]]},),
+                ({"list": [1, "asdf", 0.025, [
+                    "foo", "bar", ["baz", "qux"]
+                ]]},),
+                ({"list": [10, "fdas", 0.075, [
+                    "bar", "foo", ["qux", "baz"]
+                ]]},),
             ]
             self.client.execute("INSERT INTO test (a) VALUES", data)
 
             query = "SELECT * FROM test"
             expected_result = [
-                ({"list": (1, "asdf", 0.025,
-                 ("foo", "bar", ["baz", "qux"]))},),
-                ({"list": (10, "fdas", 0.075,
-                 ("bar", "foo", ["qux", "baz"]))},),
+                ({"list": (1, "asdf", 0.025, (
+                    "foo", "bar", ["baz", "qux"]
+                ))},),
+                ({"list": (10, "fdas", 0.075, (
+                    "bar", "foo", ["qux", "baz"]
+                ))},),
             ]
             result = self.client.execute(query)
             self.assertEqual(result, expected_result)
@@ -726,8 +782,13 @@ class NewJSONTestCase(BaseTestCase):
     def test_json_9_fromcli(self):
         with self.create_table("a JSON"):
             self.emit_cli(
-                'INSERT INTO test (a) VALUES (\'{"list": [1, "asdf", 0.025, ["foo", "bar", ["baz", "qux"]]]}\'),\
-                     (\'{"list": [10, "fdas", 0.075, ["bar", "foo", ["qux", "baz"]]]}\')'
+                'INSERT INTO test (a) VALUES '
+                '(\'{"list": [1, "asdf", 0.025, ['
+                    '"foo", "bar", ["baz", "qux"]'  # noqa: E131
+                ']]}\'), '
+                '(\'{"list": [10, "fdas", 0.075, ['
+                    '"bar", "foo", ["qux", "baz"]'
+                ']]}\')'
             )
 
             query = "SELECT * FROM test"
@@ -753,7 +814,8 @@ class NewJSONTestCase(BaseTestCase):
     def test_json_10_fromcli(self):
         with self.create_table("a JSON"):
             self.emit_cli(
-                'INSERT INTO test (a) VALUES (\'{"list": ["a", null, "b", null, "c", null]}\')'
+                'INSERT INTO test (a) VALUES '
+                '(\'{"list": ["a", null, "b", null, "c", null]}\')'
             )
 
             query = "SELECT * FROM test"
@@ -780,8 +842,9 @@ class NewJSONTestCase(BaseTestCase):
     def test_json_11_fromcli(self):
         with self.create_table("a JSON"):
             self.emit_cli(
-                'INSERT INTO test (a) VALUES (\'{"asdf": [{"foo": "bar"}, {"bar": "baz"}]}\'),\
-                     (\'{"asdf": [{"baz": "qux"}, {"qux": "quux"}]}\')'
+                'INSERT INTO test (a) VALUES '
+                '(\'{"asdf": [{"foo": "bar"}, {"bar": "baz"}]}\'),'
+                '(\'{"asdf": [{"baz": "qux"}, {"qux": "quux"}]}\')'
             )
 
             query = "SELECT * FROM test"
@@ -811,8 +874,9 @@ class NewJSONTestCase(BaseTestCase):
     def test_json_12_fromcli(self):
         with self.create_table("a JSON"):
             self.emit_cli(
-                'INSERT INTO test (a) VALUES (\'{"fdsa": [["foo", "bar"], ["bar", "baz"]]}\'),\
-                     (\'{"fdsa": [["baz", "qux"], ["qux", "quux"]]}\')'
+                'INSERT INTO test (a) VALUES '
+                '(\'{"fdsa": [["foo", "bar"], ["bar", "baz"]]}\'),'
+                '(\'{"fdsa": [["baz", "qux"], ["qux", "quux"]]}\')'
             )
 
             query = "SELECT * FROM test"

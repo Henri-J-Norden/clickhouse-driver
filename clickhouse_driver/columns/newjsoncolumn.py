@@ -1,6 +1,14 @@
+import logging
+
 from .base import Column
 from .stringcolumn import String
-from ..reader import read_binary_uint8, read_binary_bytes_fixed_len, read_binary_str, read_binary_str_fixed_len, read_binary_uint64
+from ..reader import (
+    read_binary_uint8,
+    read_binary_bytes_fixed_len,
+    read_binary_str,
+    read_binary_str_fixed_len,
+    read_binary_uint64,
+)
 from ..util.compat import json
 from ..writer import write_binary_uint8, write_binary_uint64
 
@@ -40,7 +48,10 @@ class NewJsonColumn(Column):
 
         paths_count = read_binary_uint8(buf)
         if paths_count == 0:
-            print("Warning: shared path JSON deserialization not implemented, skipping shared paths.")
+            logging.warning(
+                "Shared path JSON deserialization not implemented, "
+                "skipping shared paths."
+            )
             return
         paths = {}
         for i in range(paths_count):
@@ -90,7 +101,10 @@ class NewJsonColumn(Column):
             if subspec.startswith("JSON"):
                 paths = self._read_paths(buf)
                 if paths is None:
-                    col[spec]["tuple_header"] += [None for _ in range(len(spec[6:-2].split("), ")) - i)]
+                    col[spec]["tuple_header"] += [
+                        None
+                        for _ in range(len(spec[6:-2].split("), ")) - i)
+                    ]
                     return
                 self._read_specs(buf, paths)
                 col[spec]["tuple_header"].append(paths)
@@ -140,13 +154,18 @@ class NewJsonColumn(Column):
         """
         col[spec]["values"] = [[] for _ in range(len(col[spec]["positions"]))]
         for i, subspec in enumerate(spec[6:-2].split("), ")):
-            if not subspec.startswith("Array") and not subspec.startswith("Tuple") and not subspec.startswith("JSON"):
+            if (
+                not subspec.startswith("Array")
+                and not subspec.startswith("Tuple")
+                and not subspec.startswith("JSON")
+            ):
                 buf.read(len(col[spec]["positions"]))
             for row in col[spec]["values"]:
                 if subspec.startswith("JSON"):
                     paths = col[spec]["tuple_header"][i]
                     if paths is None:
-                        # Read simplified nested JSON with max_dynamic_types = 0 and max_dynamic_paths = 0.
+                        # Read simplified nested JSON with
+                        # max_dynamic_types = 0 and max_dynamic_paths = 0.
                         shared_paths = self._read_shared_paths(buf)
                         self._read_shared_values(buf, shared_paths)
                         break
@@ -168,8 +187,7 @@ class NewJsonColumn(Column):
                     reader = self.column_by_spec_getter(
                         subspec[9:])
                     row += reader.read_data(1, buf)
-    
-    
+
     def _read_shared_paths(self, buf):
         """
         Read json paths with max_dynamic_types = 0 and max_dynamic_paths = 0.
@@ -182,23 +200,26 @@ class NewJsonColumn(Column):
             strlen = read_binary_uint8(buf)
             col = read_binary_str_fixed_len(buf, strlen)
             paths[col] = {}
-        
+
         return paths
-    
+
     def _read_shared_values(self, buf, paths):
         """
         Read json values with max_dynamic_types = 0 and max_dynamic_paths = 0.
         """
         for path in paths:
             content_len = read_binary_uint8(buf)
-            paths[path] = self._unmarshal_shared_values(read_binary_bytes_fixed_len(buf, content_len))
+            paths[path] = self._unmarshal_shared_values(
+                read_binary_bytes_fixed_len(buf, content_len)
+            )
 
     def _unmarshal_shared_values(self, bin):
         """
-        Unmarshal json values with max_dynamic_types = 0 and max_dynamic_paths = 0.
+        Unmarshal json values with max_dynamic_types = 0 and
+        max_dynamic_paths = 0.
         """
         return bin
-    
+
     def _read_complex_array_values(self, buf, col, spec):
         """
         Read values in an array with nested JSON elements.
@@ -221,15 +242,25 @@ class NewJsonColumn(Column):
         Read value positions in the record list.
         """
         specs = []
-        skip = len(
-            col) - len([v for v in col if v.startswith("String") or v.startswith("Tuple")])
+        skip = len(col) - len(
+            [
+                v
+                for v in col
+                if v.startswith("String") or v.startswith("Tuple")
+            ]
+        )
         for i in range(n_items):
             spec_number = read_binary_uint8(buf)
             if spec_number < 255:
                 if spec_number > skip:
                     spec_number -= 1
                 spec = list(col.keys())[spec_number]
-                if not (spec.startswith("Array") or spec.startswith("Tuple")) or spec not in specs:
+                if (
+                    not (
+                        spec.startswith("Array") or spec.startswith("Tuple")
+                    )
+                    or spec not in specs
+                ):
                     specs.append(spec)
                 col[spec]["positions"].append(i)
 
@@ -327,7 +358,11 @@ class NewJsonColumn(Column):
         Write values in a tuple with nested JSON elements.
         """
         for i, subspec in enumerate(spec[6:-2].split("), ")):
-            if not subspec.startswith("Array") and not subspec.startswith("Tuple") and not subspec.startswith("JSON"):
+            if (
+                not subspec.startswith("Array")
+                and not subspec.startswith("Tuple")
+                and not subspec.startswith("JSON")
+            ):
                 buf.write(b"\x00" * len(col[spec]["values"]))
             for row in col[spec]["values"]:
                 if subspec.startswith("JSON"):
@@ -377,7 +412,10 @@ class NewJsonColumn(Column):
         elif isinstance(item, bool):
             return "Bool"
         elif isinstance(item, dict):
-            return f"JSON(max_dynamic_types={int(2 ** (4 - depth))}, max_dynamic_paths={int(4 ** (4 - depth))})"
+            return (
+                f"JSON(max_dynamic_types={int(2 ** (4 - depth))}, "
+                f"max_dynamic_paths={int(4 ** (4 - depth))})"
+            )
         elif isinstance(item, list):
             value_types = []
             for entry in item:
@@ -389,7 +427,11 @@ class NewJsonColumn(Column):
                 unique_specs = []
                 for entry in item:
                     spec = self._get_json_value_spec(entry, depth)
-                    if not spec.startswith("Array") and not spec.startswith("Tuple") and not spec.startswith("JSON"):
+                    if (
+                        not spec.startswith("Array")
+                        and not spec.startswith("Tuple")
+                        and not spec.startswith("JSON")
+                    ):
                         result += f"Nullable({spec}), "
                     else:
                         result += f"{spec}, "
@@ -398,7 +440,10 @@ class NewJsonColumn(Column):
 
                 # Return an array if all specs are the same
                 if len(unique_specs) == 1:
-                    return f"Array({self._get_json_value_spec(item[0], depth=depth)})"
+                    inner_spec = self._get_json_value_spec(
+                        item[0], depth=depth
+                    )
+                    return f"Array({inner_spec})"
                 result = result[:-2] + ")"
                 return result
             else:
@@ -424,8 +469,11 @@ class NewJsonColumn(Column):
         """
         result = [255] * row_count
         count = 0
-        skip = len(col) - len([v for v in col.keys()
-                               if v.startswith("String") or v.startswith("Tuple")])
+        skip = len(col) - len([
+            v
+            for v in col.keys()
+            if v.startswith("String") or v.startswith("Tuple")
+        ])
         for spec in col:
             if count == skip:
                 count += 1
@@ -436,7 +484,8 @@ class NewJsonColumn(Column):
 
     def _normalize_json(self, obj,):
         """
-        Deals with converting a nested dictionary to a dictionary of paths with depth one.
+        Deals with converting a nested dictionary to a dictionary of paths
+        with depth one.
         """
         if isinstance(obj, dict):
             result = {}
@@ -520,7 +569,7 @@ class NewJsonColumn(Column):
             for item in values:
                 insert.append(self._preprocess_array(item, array_type[6:-1]))
             return insert
-        
+
         if "String" in array_type:
             for item in values:
                 arr = []
